@@ -60,34 +60,20 @@ class ViewProvider implements vscode.WebviewViewProvider {
 
 			</style>
 
-        	<textarea id="errorText" rows="8" style="width:100%" placeholder="Fehlermeldung mit Call-Stack hier eingeben"></textarea>
+        	<textarea id="errorText" rows="12" style="width:100%" placeholder="Fehlermeldung hier eingeben..."></textarea>
 
-        	<button onclick="generate()">Call-Stack auslesen</button>
+        	<button onclick="showCallStack()">Call-Stack auslesen</button>
 
         	<pre id="output"></pre>
 
         	<script>
           		const vscode = acquireVsCodeApi();
 
-          		function generate(){
+          		function showCallStack(){
             	const text = document.getElementById("errorText").value;
-
-            	vscode.postMessage({
-              		command: "generate",
-              		text: text
-            		});
-          		}
-
-          		window.addEventListener("message", event => {
-            		const msg = event.data;
-
-            		if(msg.command === "showCallstack"){
-              		document.getElementById("output").textContent =
-                	msg.callstack.join("\\n");
-            		}
-          		});
-
-        </script>
+				const callstack = parseCallstack(text);
+				}
+        	</script>
 
       </body>
       </html>
@@ -95,8 +81,17 @@ class ViewProvider implements vscode.WebviewViewProvider {
   }
 }
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+function parseCallstack(errorText: string): string[] {
+
+	const lines = errorText.split("\n");
+
+  	const stackLines = lines.filter(line =>
+    line.trim().startsWith("at ")
+  	);
+	vscode.window.showInformationMessage("Callstack ausgelesen test" + stackLines.length);
+  	return stackLines;
+}
+
 export function activate(context: vscode.ExtensionContext) {
 
 	const provider = new ViewProvider(context.extensionUri);
@@ -109,5 +104,4 @@ export function activate(context: vscode.ExtensionContext) {
     );
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
