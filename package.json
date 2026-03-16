@@ -12,6 +12,33 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stackhelper",
+          "title": "Stack Helper",
+          "icon": "resource/stack.png"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "scm",
+        "contents": "placeholder Text"
+      }
+    ],
+    "views": {
+      "stackhelper":[
+        {
+          "id": "stackhelper-view",
+          "name": "Stack Helper"
+        },
+        {
+          "id": "stackhelper-callstack",
+          "name": "Call Stack"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "stackhelper.helloWorld",
