@@ -21,17 +21,12 @@
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "scm",
-        "contents": "placeholder Text"
-      }
-    ],
     "views": {
       "stackhelper":[
         {
           "id": "stackhelper-view",
-          "name": "Stack Helper"
+          "name": "Stack Helper",
+          "type": "webview"
         },
         {
           "id": "stackhelper-callstack",
