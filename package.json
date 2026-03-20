@@ -26,11 +26,13 @@
         {
           "id": "stackhelper-view",
           "name": "Stack Helper",
-          "type": "webview"
+          "type": "webview",
+          "icon": ""
         },
         {
           "id": "stackhelper-callstack",
-          "name": "Call Stack"
+          "name": "Call Stack",
+          "icon": ""
         }
       ]
     },
