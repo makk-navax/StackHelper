@@ -25,7 +25,7 @@ class StackHelperViewProvider implements vscode.WebviewViewProvider {
             	const stack = parseCallstack(message.text);
             	const html = renderCallstack(stack);
 
-				this.callStackProvider?.update(message.payload);
+				this.callStackProvider?.update(stack);
 
             	webviewView.webview.postMessage({
                 	command: "render",
@@ -50,20 +50,23 @@ export class CallStackViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(message => {
         	if (message.command === "openFile") {
-            	openFileAtLine(message.file, message.line);
+				const { name, objectId, line } = message.payload;
+            	openFileAtLine(name, objectId, line);
         	}
     	});
     }
 
-    update(data: string) {
-        this.view?.webview.postMessage({
-            type: "update",
-            payload: data
-        });
+    update(stack: any[]) {
+        const html = renderCallstack(stack);
+
+    	this.view?.webview.postMessage({
+        	type: "render",
+        	html
+    	});
     }
 }
 
-async function openFileAtLine(file: string, line: number) {
+async function openFileAtLine(file: string, objectId: number, line: number) {
     const uri = vscode.Uri.file(file);
 
     const doc = await vscode.workspace.openTextDocument(uri);
@@ -91,20 +94,57 @@ function parseCallstack(errorText: string): string[] {
         .map(line => line.trim())
         .filter(line => line.length > 0);
 
+	const parsed = stackLines.map(line => {
+
+        const cleaned = line.replace(/-$/, "").trim();
+
+        const regex = /"(.+?)"\(.*? (\d+)\)\.(.+?) line (\d+)/;
+        const match = cleaned.match(regex);
+
+        if (!match) {
+            return undefined;
+        }
+
+        return {
+            name: match[1],
+            objectId: Number(match[2]),
+            method: match[3],
+            line: Number(match[4])
+        };
+    }).filter(Boolean) as any[];
+
     vscode.window.showInformationMessage(
-        "Callstack ausgelesen: " + stackLines.length
+        "Callstack ausgelesen: " + parsed
     );
 
-    return stackLines;
+    return parsed;
 }
 
 function renderCallstack(stack: any[]): string {
-    return stack.map((entry, index) => {
+    return stack.map((entry) => {
         return `
-        <div>
-            ${entry.raw}
-            <a href="#" onclick="openFile('${entry.file}', ${entry.line})"></a>
+        <div class="callstack-entry" style="margin-bottom:6px;">
+            <a href="#" class="callstack-link" onclick="openFile('${entry.name}', ${entry.objectId}, ${entry.line})">
+                ${entry.name}
+                <span style="opacity:0.7">(${entry.objectId})</span>
+                <span style="margin-left:6px;">${entry.method}</span>
+                <span style="margin-left:6px;">→ Zeile ${entry.line}</span>
+            </a>
         </div>
+
+		<style>
+			.callstack-link {
+    			display: block;
+    			padding: 5px;
+    			border-radius: 3px;
+    			text-decoration: none;
+    			color: inherit;
+			}
+
+			.callstack-link:hover {
+    			background-color: rgba(255,255,255,0.05);
+			}
+		</style>
         `;
     }).join("");
 }
@@ -113,6 +153,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const stackHelperProvider = new StackHelperViewProvider(context.extensionUri);
 	const callStackProvider = new CallStackViewProvider(context.extensionUri);
+
+	stackHelperProvider.setCallStackProvider(callStackProvider);
 
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider("stackhelper-view", stackHelperProvider),
@@ -194,7 +236,26 @@ export function getCallStackHtml(): string {
 	return `
 	<html>
     	<body>
-			
+			<div id="content"></div>
+
+        	<script>
+            	const vscode = acquireVsCodeApi();
+
+            	window.addEventListener("message", (event) => {
+                	const message = event.data;
+
+                	if (message.type === "render") {
+                    	document.getElementById("content").innerHTML = message.html;
+                	}
+            	});
+
+            	function openFile(name, objectId, line) {
+                	vscode.postMessage({
+                    	command: "openFile",
+                    	payload: { name, objectId, line }
+                	});
+            }
+        	</script>
 		</body>
 	</html>
 	`;

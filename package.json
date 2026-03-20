@@ -32,6 +32,7 @@
         {
           "id": "stackhelper-callstack",
           "name": "Call Stack",
+          "type": "webview",
           "icon": ""
         }
       ]
