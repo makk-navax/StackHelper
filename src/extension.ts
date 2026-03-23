@@ -1,6 +1,6 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { openCallstackEntry } from './openCallstackEntry';
+import { FileIndexService } from "./fileIndexService";
 
 class StackHelperViewProvider implements vscode.WebviewViewProvider {
 
@@ -39,8 +39,11 @@ class StackHelperViewProvider implements vscode.WebviewViewProvider {
 export class CallStackViewProvider implements vscode.WebviewViewProvider {
 
     private view?: vscode.WebviewView;
+	private index: FileIndexService;
 
-    constructor(private readonly extensionUri: vscode.Uri) {}
+    constructor(private readonly extensionUri: vscode.Uri, index: FileIndexService) {
+    	this.index = index;
+	}
 
     resolveWebviewView(webviewView: vscode.WebviewView) {
         this.view = webviewView;
@@ -48,10 +51,14 @@ export class CallStackViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.options = { enableScripts: true };
         webviewView.webview.html = getCallStackHtml();
 
-		webviewView.webview.onDidReceiveMessage(message => {
+		webviewView.webview.onDidReceiveMessage(async message => {
         	if (message.command === "openFile") {
-				const { name, objectId, line } = message.payload;
-            	openFileAtLine(name, objectId, line);
+				const workspaceRoot = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+
+        	if (!workspaceRoot) 
+				return;
+
+        	await openCallstackEntry(message.payload, this.index);
         	}
     	});
     }
@@ -64,17 +71,6 @@ export class CallStackViewProvider implements vscode.WebviewViewProvider {
         	html
     	});
     }
-}
-
-async function openFileAtLine(file: string, objectId: number, line: number) {
-    const uri = vscode.Uri.file(file);
-
-    const doc = await vscode.workspace.openTextDocument(uri);
-    const editor = await vscode.window.showTextDocument(doc);
-
-    const position = new vscode.Position(line - 1, 0);
-    editor.selection = new vscode.Selection(position, position);
-    editor.revealRange(new vscode.Range(position, position));
 }
 
 function parseCallstack(errorText: string): string[] {
@@ -98,7 +94,7 @@ function parseCallstack(errorText: string): string[] {
 
         const cleaned = line.replace(/-$/, "").trim();
 
-        const regex = /"(.+?)"\(.*? (\d+)\)\.(.+?) line (\d+)/;
+        const regex = /"(.+?)"\((\w+)\s+(\d+)\)\.(.+?) line (\d+)/;
         const match = cleaned.match(regex);
 
         if (!match) {
@@ -106,16 +102,13 @@ function parseCallstack(errorText: string): string[] {
         }
 
         return {
-            name: match[1],
-            objectId: Number(match[2]),
-            method: match[3],
-            line: Number(match[4])
-        };
+    		name: match[1],
+    		type: match[2].toLowerCase(),
+    		objectId: Number(match[3]),
+    		method: match[4],
+    		line: Number(match[5])
+		};
     }).filter(Boolean) as any[];
-
-    vscode.window.showInformationMessage(
-        "Callstack ausgelesen: " + parsed
-    );
 
     return parsed;
 }
@@ -124,7 +117,7 @@ function renderCallstack(stack: any[]): string {
     return stack.map((entry) => {
         return `
         <div class="callstack-entry" style="margin-bottom:6px;">
-            <a href="#" class="callstack-link" onclick="openFile('${entry.name}', ${entry.objectId}, ${entry.line})">
+            <a href="#" class="callstack-link" onclick="openFile('${entry.name}', '${entry.type}',${entry.objectId}, ${entry.line})">
                 ${entry.name}
                 <span style="opacity:0.7">(${entry.objectId})</span>
                 <span style="margin-left:6px;">${entry.method}</span>
@@ -149,10 +142,18 @@ function renderCallstack(stack: any[]): string {
     }).join("");
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+	const workspaceRoot = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+
+    if (!workspaceRoot) 
+		return;
+
+	const index = new FileIndexService(workspaceRoot);
+
+	await index.buildIndex();
 
 	const stackHelperProvider = new StackHelperViewProvider(context.extensionUri);
-	const callStackProvider = new CallStackViewProvider(context.extensionUri);
+	const callStackProvider = new CallStackViewProvider(context.extensionUri, index);
 
 	stackHelperProvider.setCallStackProvider(callStackProvider);
 
@@ -217,12 +218,20 @@ export function getStackHelperHtml(): string {
         	<script>
           		const vscode = acquireVsCodeApi();
 
-          		function showCallStack(){
-            	const text = document.getElementById("errorText").value;
+				const state = vscode.getState();
+    			if (state) {
+        			document.getElementById("errorText").value = state.text || "";
+					showCallStack();
+    			}
 
-				vscode.postMessage({
-      				command: "parse",
-      				text: text
+          		function showCallStack(){
+            		const text = document.getElementById("errorText").value;
+
+					vscode.setState({ text });
+
+					vscode.postMessage({
+      					command: "parse",
+      					text: text
     				});
   				}
         	</script>
@@ -249,15 +258,14 @@ export function getCallStackHtml(): string {
                 	}
             	});
 
-            	function openFile(name, objectId, line) {
+            	function openFile(name, type, objectId, line) {
                 	vscode.postMessage({
                     	command: "openFile",
-                    	payload: { name, objectId, line }
+                    	payload: { name, type, objectId, line }
                 	});
-            }
+            	}
         	</script>
 		</body>
 	</html>
 	`;
 }
-
