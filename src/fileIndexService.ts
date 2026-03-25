@@ -37,7 +37,7 @@ export class FileIndexService {
             try {
                 const content = fs.readFileSync(file.fsPath, "utf8");
 
-                const match = content.match(/(table|page|codeunit|report|enum|querie|xml)\s+(\d+)/i);
+                const match = content.match(/(table|page|codeunit|report|enum|query|xmlport)\s+(\d+)/i);
 
                 if (match) {
                     const type = match[1].toLowerCase();
@@ -80,7 +80,7 @@ export class FileIndexService {
 
                     const content = entry.getData().toString("utf8");
 
-                    const match = content.match(/(table|page|codeunit|report|enum|querie|xml)\s+(\d+)/i);
+                    const match = content.match(/(table|page|codeunit|report|enum|query|xmlport)\s+(\d+)/i);
 
                     if (match) {
                         const type = match[1].toLowerCase();

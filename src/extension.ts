@@ -94,7 +94,7 @@ function parseCallstack(errorText: string): string[] {
 
         const cleaned = line.replace(/-$/, "").trim();
 
-        const regex = /"(.+?)"\((\w+)\s+(\d+)\)\.(.+?) line (\d+)/;
+        const regex = /"(.+?)"\((\w+)\s+(\d+)\)\.(.+?) line (\d+)/i;
         const match = cleaned.match(regex);
 
         if (!match) {
