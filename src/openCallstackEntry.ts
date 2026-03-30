@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import AdmZip from "adm-zip";
 import { FileIndexService } from "./fileIndexService";
 import { buildKey } from "./fileIndexService";
 
@@ -34,24 +33,5 @@ export async function openCallstackEntry(
     // -------------------------
     if (location.type === "app") {
 
-        const zip = new AdmZip(location.appPath);
-        const entryZip = zip.getEntry(location.entryName);
-
-        if (!entryZip) {
-            vscode.window.showErrorMessage("Eintrag nicht gefunden in .app");
-            return;
-        }
-
-        const content = entryZip.getData().toString("utf8");
-
-        const doc = await vscode.workspace.openTextDocument({
-            content,
-            language: "al"
-        });
-
-        const editor = await vscode.window.showTextDocument(doc);
-
-        const pos = new vscode.Position(entry.line - 1, 0);
-        editor.revealRange(new vscode.Range(pos, pos));
     }
 }

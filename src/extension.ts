@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { openCallstackEntry } from './openCallstackEntry';
-import { FileIndexService } from "./fileIndexService";
+import { FileIndexService } from './fileIndexService';
 
 class StackHelperViewProvider implements vscode.WebviewViewProvider {
 
@@ -78,7 +78,7 @@ function parseCallstack(errorText: string): string[] {
     const lines = errorText.split("\n");
 
     const startIndex = lines.findIndex(line =>
-        line.trim().startsWith("Aufrufliste")
+        line.trim().includes("Aufrufliste")
     );
 
     if (startIndex === -1) {
@@ -213,6 +213,10 @@ export function getStackHelperHtml(): string {
 
         	<button onclick="showCallStack()">Call-Stack auslesen</button>
 
+			<br>
+
+			<button onclick="clearCallstack()">Eingabe löschen</button>
+
         	<pre id="output"></pre>
 
         	<script>
@@ -234,6 +238,17 @@ export function getStackHelperHtml(): string {
       					text: text
     				});
   				}
+
+				function clearCallstack() {
+					document.getElementById("errorText").value = "";
+
+					vscode.setState({ text: "" });
+					
+					vscode.postMessage({
+	  					command: "parse",
+	  					text: ""
+					});
+				}
         	</script>
 
       </body>

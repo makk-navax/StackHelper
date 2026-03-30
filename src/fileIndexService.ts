@@ -1,11 +1,9 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
-import * as path from "path";
-import AdmZip from "adm-zip";
 
 type Location =
     | { type: "local"; filePath: string }
-    | { type: "app"; appPath: string; entryName: string };
+    | { type: "app"; filePath: string };
 
 export class FileIndexService {
 
@@ -14,8 +12,7 @@ export class FileIndexService {
     constructor(private workspaceRoot: string) {}
 
     async buildIndex() {
-        await this.indexLocalFiles();
-        await this.indexAppFiles();
+        await this.indexLocalFiles(); 
 
         vscode.window.showInformationMessage(
             `Index gebaut: ${this.objectIndex.size} Objekte`
@@ -32,7 +29,8 @@ export class FileIndexService {
     private async indexLocalFiles() {
 
         const files = await vscode.workspace.findFiles("**/*.al");
-
+        
+        
         for (const file of files) {
             try {
                 const content = fs.readFileSync(file.fsPath, "utf8");
@@ -55,54 +53,9 @@ export class FileIndexService {
             }
         }
     }
-
-    // -------------------------
-    // Index .app Dateien
-    // -------------------------
-    private async indexAppFiles() {
-
-        const appDir = path.join(this.workspaceRoot, ".alpackages");
-
-        if (!fs.existsSync(appDir)) return;
-
-        const files = fs.readdirSync(appDir).filter(f => f.endsWith(".app"));
-
-        for (const file of files) {
-
-            const fullPath = path.join(appDir, file);
-
-            try {
-                const zip = new AdmZip(fullPath);
-
-                for (const entry of zip.getEntries()) {
-
-                    if (!entry.entryName.endsWith(".al")) continue;
-
-                    const content = entry.getData().toString("utf8");
-
-                    const match = content.match(/(table|page|codeunit|report|enum|query|xmlport)\s+(\d+)/i);
-
-                    if (match) {
-                        const type = match[1].toLowerCase();
-                        const objectId = Number(match[2]);
-
-                        const key = buildKey(type, objectId);
-
-                        this.objectIndex.set(key, {
-                            type: "app",
-                            appPath: fullPath,
-                            entryName: entry.entryName
-                        });
-                    }
-                }
-
-            } catch (err) {
-                console.error("Fehler in .app:", file);
-            }
-        }
-    }
 }
 
+
 export function buildKey(type: string, objectId: number): string {
-        return `${type.toLowerCase()}:${objectId}`;
-    }
+    return `${type.toLowerCase()}:${objectId}`;
+}
