@@ -117,7 +117,7 @@ function renderCallstack(stack: any[]): string {
     return stack.map((entry) => {
         return `
         <div class="callstack-entry" style="margin-bottom:6px;">
-            <a href="#" class="callstack-link" onclick="openFile('${entry.name}', '${entry.type}',${entry.objectId}, ${entry.line})">
+            <a href="#" class="callstack-link" onclick="openFile('${entry.name}', '${entry.type}',${entry.objectId}, '${entry.method}', ${entry.line})">
                 ${entry.name}
                 <span style="opacity:0.7">(${entry.objectId})</span>
                 <span style="margin-left:6px;">${entry.method}</span>
@@ -243,7 +243,7 @@ export function getStackHelperHtml(): string {
 					document.getElementById("errorText").value = "";
 
 					vscode.setState({ text: "" });
-					
+
 					vscode.postMessage({
 	  					command: "parse",
 	  					text: ""
@@ -273,10 +273,10 @@ export function getCallStackHtml(): string {
                 	}
             	});
 
-            	function openFile(name, type, objectId, line) {
+            	function openFile(name, type, objectId, method, line) {
                 	vscode.postMessage({
                     	command: "openFile",
-                    	payload: { name, type, objectId, line }
+                    	payload: { name, type, objectId, method, line }
                 	});
             	}
         	</script>

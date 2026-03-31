@@ -22,7 +22,7 @@ export async function openCallstackEntry(
         const doc = await vscode.workspace.openTextDocument(location.filePath);
         const editor = await vscode.window.showTextDocument(doc);
 
-        const pos = new vscode.Position(entry.line - 1, 0);
+        const pos = new vscode.Position(entry.line, 0);
         editor.revealRange(new vscode.Range(pos, pos));
 
         return;
