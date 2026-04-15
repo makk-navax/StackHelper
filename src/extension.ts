@@ -102,10 +102,10 @@ function parseCallstack(errorText: string): string[] {
         }
 
         return {
-    		name: match[1],
-    		type: match[2].toLowerCase(),
+    		name: escapeAttr(match[1]),
+    		type: escapeAttr(match[2].toLowerCase()),
     		objectId: Number(match[3]),
-    		method: match[4],
+    		method: escapeAttr(match[4]),
     		line: Number(match[5])
 		};
     }).filter(Boolean) as any[];
@@ -117,7 +117,7 @@ function renderCallstack(stack: any[]): string {
     return stack.map((entry) => {
         return `
         <div class="callstack-entry" style="margin-bottom:6px;">
-            <a href="#" class="callstack-link" onclick="openFile('${entry.name}', '${entry.type}',${entry.objectId}, '${entry.method}', ${entry.line})">
+            <a href="#" class="callstack-link" onclick="console.log('click'); openFile('${entry.name}', '${entry.type}',${entry.objectId}, '${entry.method}', ${entry.line})">
                 ${entry.name}
                 <span style="opacity:0.7">(${entry.objectId})</span>
                 <span style="margin-left:6px;">${entry.method}</span>
@@ -283,4 +283,10 @@ export function getCallStackHtml(): string {
 		</body>
 	</html>
 	`;
+}
+
+function escapeAttr(str: string) {
+  	return str
+    	.replace(/'/g, "\\'")
+    	.replace(/"/g, "&quot;");
 }

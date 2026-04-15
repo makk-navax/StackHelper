@@ -30,12 +30,11 @@ export class FileIndexService {
 
         const files = await vscode.workspace.findFiles("**/*.al");
         
-        
         for (const file of files) {
             try {
                 const content = fs.readFileSync(file.fsPath, "utf8");
 
-                const match = content.match(/(table|page|codeunit|report|enum|query|xmlport)\s+(\d+)/i);
+                const match = content.match(/(table|tableextension|page|pageextension|codeunit|report|reportextension|enum|enumextension|query|xmlport)\s+(\d+)/i);
 
                 if (match) {
                     const type = match[1].toLowerCase();
@@ -54,7 +53,6 @@ export class FileIndexService {
         }
     }
 }
-
 
 export function buildKey(type: string, objectId: number): string {
     return `${type.toLowerCase()}:${objectId}`;

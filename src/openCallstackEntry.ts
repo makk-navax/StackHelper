@@ -18,14 +18,27 @@ export async function openCallstackEntry(
     // 📄 Lokale Datei
     // -------------------------
     if (location.type === "local") {
+        
+        const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+            'vscode.executeDocumentSymbolProvider',
+            vscode.Uri.file(location.filePath)
+        ); 
 
-        const doc = await vscode.workspace.openTextDocument(location.filePath);
-        const editor = await vscode.window.showTextDocument(doc);
+        if(!symbols) {
+            vscode.window.showErrorMessage(`Symbols für Objekt ${entry.objectId} nicht gefunden`);
+            return;
+        }
 
-        const pos = new vscode.Position(entry.line, 0);
-        editor.revealRange(new vscode.Range(pos, pos));
+        const childnodes = symbols[0].children ?? [];
 
-        return;
+        
+
+        for (const node of childnodes) {
+            if (node.name.includes(`${entry.method}`)) {
+                await openEditor(node.range.start.line, location);
+                return;
+            }
+        }
     }
 
     // -------------------------
@@ -34,4 +47,11 @@ export async function openCallstackEntry(
     if (location.type === "app") {
 
     }
+}
+async function openEditor(lineNo: number, location: any) {
+    const pos = new vscode.Position(lineNo, 0);
+    const doc = await vscode.workspace.openTextDocument(location.filePath);
+    const editor = await vscode.window.showTextDocument(doc);
+    editor.selection = new vscode.Selection(pos, pos);
+    editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.InCenter);
 }
