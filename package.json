@@ -64,7 +64,6 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
-    "7zip-min": "^3.0.1",
     "adm-zip": "^0.5.16"
   }
 }
