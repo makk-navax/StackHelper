@@ -46,6 +46,7 @@ Der Datenfluss ist eventbasiert. Die WebViews stoßen also ein Event an und die 
 
 * Node.js in einer aktuellen Version 20.x und aufwärts
 * Git in einer aktuellen Version
+* VS Code in einer aktuellen Version
 
 ### Installation
 
@@ -92,7 +93,7 @@ git clone https://github.com/makk-navax/StackHelper
 
 Die Quellcode Dateien des Projekts sind im "src" Ordner hinterlegt.
 
-## 🧠 Designentscheidungen
+## Designentscheidungen
 
 * **GUI mit Umgebungs Vars:** Dadurch passt sich die GUI dem Farbschema des Benutzers an, was die benutzerfreundlichkeit fördert.
 * **Schichtenarchitektur:** Erhöht die Wartbarkeit und Modularität um zukünftige Anpassungen und Erweiterung einfacher einspielen zu können
@@ -102,7 +103,7 @@ Die Quellcode Dateien des Projekts sind im "src" Ordner hinterlegt.
 * Integration Tests
 * Manuelle Tests
 
-## 🚀 Deployment
+## Deployment
 
 **Voraussetzung:**
 das Modul "vsce" ist installiert.
@@ -119,8 +120,8 @@ $ vsce package
 ```
 
 **Deployment-Schritte:**
-
-1. StackHelper.vsix manuell in VS Code installieren (Über das UI)
-2. In der Aktivitätsleiste auf Erweiterungen gehen
-3. Auf die drei Punkte und "Install from VSIX" auswählen
+StackHelper.vsix manuell in VS Code installieren (Über das UI)
+1. In der Aktivitätsleiste auf "Erweiterungen" gehen
+2. Auf die drei Punkte und "Install from VSIX" auswählen
+3. Die vorher erstellete StackHelper.vsix Datei auswählen
 
