@@ -26,6 +26,7 @@ export async function openCallstackEntry(
 
         if(!symbols) {
             vscode.window.showErrorMessage(`Symbols für Objekt ${entry.objectId} nicht gefunden`);
+            await openEditor(0, location);
             return;
         }
 

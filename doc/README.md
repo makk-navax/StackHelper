@@ -1,71 +1,49 @@
-# stackhelper README
+# StackHelper – Benutzerhandbuch
 
-This is the README for your extension "stackhelper". After writing up a brief description, we recommend including the following sections.
+## 1. Einführung
+- VS Code Erweiterug zur vereinfachten Fehleranalyse in BC
+- Zielgruppe: Entwickler und Consultants
 
-## Features
+## 2. Erste Schritte
+### 2.1 Systemanforderungen
+- Betriebssystem: Windows(10, 11) | Linux (Debian, Ubuntu, Red Hat, Fedora, SUSE) | macOS (11.0+)
+- Hardware: Computer mit ausreichend Prozessorleistung und RAM
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### 2.2 Voraussetzungen
+- StackHelper.vsix aus dem Repository herunterladen
 
-For example if there is an image subfolder under your extension project workspace:
+### 2.2 Installation
+1. VS Code öffnen
+2. In den Reiter "Erweiterungen" navigieren
+3. Auf die drei Punkte oben rechts drücken und "Install from vsix" auswählen
+4. StackHelper.vsix auswählen
 
-\!\[feature X\]\(images/feature-x.png\)
+### 2.3 Schnellstart
+- VS Code öffnen
+- Projektordner (Workspace) in VS Code öffnen
+- In die Erweiterung über der Aktivitätleiste navigieren
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+**Wichtig:**
+Wenn kein Workspace ausgewählt wird kann die Erweiterung nicht starten.
+Sie würde also unendlich versuchen den Workspace zu laden.
 
-## Requirements
+## 3. Benutzeroberfläche
+### 3.1 Überblick
+- Textfeld zur Eingabe der Fehlermeldung
+- Button um die Fehlermeldung auszulesen
+- Button um Textfeld zu leeren
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Call-Stack Anzeigebereich
+- Call-Stack Eintrag
 
-## Extension Settings
+### 3.2 Navigation
+- Buttons
+- Call-Stack -> Link in die jeweiligen Quellcode Dateien
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## 6. Konfiguration & Einstellungen
+- Anzeige kann über die Farbschemata in VS Code geändert werden
 
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+## 7. Fehlerbehebung
+- Häufige Probleme:
+    - Erweiterung läd nicht beim Starten  ->  Workspace auswählen
+    - Falls die Erweiterung immer noch nicht läd  ->  F1 und "Developer Reload Window"

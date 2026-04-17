@@ -10,7 +10,8 @@
 		"rootDir": "src",
 		"types": [
 			"node",
-			"vscode"
+			"vscode",
+			"mocha"
 		],
 		"strict": true,   /* enable all strict type-checking options */
 		/* Additional Checks */
