@@ -2,10 +2,8 @@ import * as vscode from "vscode";
 import { FileIndexService } from "./fileIndexService";
 import { buildKey } from "./fileIndexService";
 
-export async function openCallstackEntry(
-    entry: any,
-    index: FileIndexService
-) {
+export async function openCallstackEntry(entry: any, index: FileIndexService)
+{
     const key = buildKey(entry.type, entry.objectId);
     const location = index.get(key);
 
@@ -15,7 +13,7 @@ export async function openCallstackEntry(
     }
 
     // -------------------------
-    // 📄 Lokale Datei
+    // Lokale Datei
     // -------------------------
     if (location.type === "local") {
         
@@ -32,23 +30,27 @@ export async function openCallstackEntry(
 
         const childnodes = symbols[0].children ?? [];
 
-        
-
         for (const node of childnodes) {
             if (node.name.includes(`${entry.method}`)) {
                 await openEditor(node.range.start.line, location);
+                return;
+            }
+            else {
+                vscode.window.showErrorMessage(`Symbols für Objekt ${entry.objectId} nicht gefunden`);
+                await openEditor(0, location);
                 return;
             }
         }
     }
 
     // -------------------------
-    // 📦 .app Datei
+    // .app Datei
     // -------------------------
     if (location.type === "app") {
 
     }
 }
+
 async function openEditor(lineNo: number, location: any) {
     const pos = new vscode.Position(lineNo, 0);
     const doc = await vscode.workspace.openTextDocument(location.filePath);

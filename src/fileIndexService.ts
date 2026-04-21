@@ -23,9 +23,6 @@ export class FileIndexService {
         return this.objectIndex.get(key);
     }
 
-    // -------------------------
-    // Index lokale Dateien
-    // -------------------------
     private async indexLocalFiles() {
 
         const files = await vscode.workspace.findFiles("**/*.al");
